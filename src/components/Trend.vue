@@ -27,9 +27,17 @@ export default {
       titleFontSize: 0, // 图表文字的大小
     }
   },
+  created() {
+    this.$socket.registerCallBack('trendData', this.getData)
+  },
   mounted() {
     this.initChart()
-    this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'trendData',
+      chartName: 'trend',
+      vaule: '',
+    })
     window.addEventListener('resize', this.screenAdapter)
     // 在页面加载完成的时候,主动的进行屏幕的适配
     this.screenAdapter()
@@ -37,6 +45,7 @@ export default {
   beforeDestroy() {
     // 组件销毁之前,将监听器取消掉
     window.removeEventListener('resize', this.screenAdapter)
+    this.$socket.unRegisterCallBack('trendData')
   },
   methods: {
     // 初始化echartInstance对象
@@ -71,9 +80,8 @@ export default {
     // },
     // 获取服务器的数据
 
-    async getData() {
+    getData(ret) {
       // http://127.0.0.1:8888/api/trend
-      const { data: ret } = await this.$axios.get('trend')
       this.allData = ret
       this.updataChart()
     },

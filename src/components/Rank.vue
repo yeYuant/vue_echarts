@@ -16,9 +16,18 @@ export default {
       timerId: null, // 定时器的标识
     }
   },
+
+  created() {
+    this.$socket.registerCallBack('rankData', this.getData)
+  },
   mounted() {
     this.initChart()
-    this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'rankData',
+      chartName: 'rank',
+      vaule: '',
+    })
     window.addEventListener('resize', this.screenAdapter)
     // 在页面加载完成的时候,主动的进行屏幕的适配
     this.screenAdapter()
@@ -101,9 +110,8 @@ export default {
     },
     // },
     // 获取服务器的数据
-    async getData() {
+    async getData(ret) {
       // http://127.0.0.1:8888/api/rank
-      const { data: ret } = await this.$axios.get('rank')
       this.allData = ret
       //   // 对数据进行排序
       this.allData.sort((a, b) => {

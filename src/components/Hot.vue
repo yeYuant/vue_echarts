@@ -19,9 +19,18 @@ export default {
       titleFontSize: 0, // 标题的字体大小
     }
   },
+
+  created() {
+    this.$socket.registerCallBack('hotproductData', this.getData)
+  },
   mounted() {
     this.initChart()
-    this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'hotproductData',
+      chartName: 'hotproduct',
+      vaule: '',
+    })
     window.addEventListener('resize', this.screenAdapter)
     // 在页面加载完成的时候,主动的进行屏幕的适配
     this.screenAdapter()
@@ -82,11 +91,10 @@ export default {
     },
     // },
     // 获取服务器的数据
-    async getData() {
+    async getData(ret) {
       // http://127.0.0.1:8888/api/hotproduct
-      const { data: ret } = await this.$axios.get('hotproduct')
+
       this.allData = ret
-      console.log(this.allData)
       this.updataChart()
     },
     updataChart() {

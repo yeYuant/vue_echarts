@@ -18,9 +18,18 @@ export default {
       ProControl: true, //   定义一个控制点击省份时双击事件失效的值
     }
   },
+
+  created() {
+    this.$socket.registerCallBack('mapData', this.getData)
+  },
   mounted() {
     this.initChart()
-    this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'mapData',
+      chartName: 'map',
+      vaule: '',
+    })
     window.addEventListener('resize', this.screenAdapter)
     // 在页面加载完成的时候,主动的进行屏幕的适配
     this.screenAdapter()
@@ -77,9 +86,9 @@ export default {
       })
     },
     // 获取服务器的数据,对dataAll进行赋值后,使用 updataChart()更新图表
-    async getData() {
+    async getData(ret) {
       // http://127.0.0.1:8888/api/map
-      const { data: ret } = await this.$axios.get('map')
+
       this.allData = ret
       this.updataChart()
     },
