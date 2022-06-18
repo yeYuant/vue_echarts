@@ -1,4 +1,4 @@
-<!--销量趋势统计图表-->
+<!--地区销量趋势统计图表-->
 <template>
   <div class="com_container">
     <div class="title" :style="comStyle">
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { getThemeValue } from '../utils/theme_utils'
 export default {
   name: 'Trend',
   data() {
@@ -50,7 +52,7 @@ export default {
   methods: {
     // 初始化echartInstance对象
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.trendRef, 'chalk')
+      this.chartInstance = this.$echarts.init(this.$refs.trendRef, this.theme)
       const initOption = {
         grid: {
           top: '25%',
@@ -63,7 +65,7 @@ export default {
           trigger: 'axis',
         },
         legend: {
-          left: 20,
+          left: 'center',
           top: '13%',
           icon: 'circle',
         },
@@ -141,7 +143,7 @@ export default {
           itemHeight: this.titleFontSize,
           itemGap: this.titleFontSize,
           textStyle: {
-            fontSize: this.titleFontSize / 2,
+            fontSize: this.titleFontSize / 1.2,
           },
         },
       }
@@ -178,12 +180,22 @@ export default {
     comStyle() {
       return {
         fontSize: this.titleFontSize + 'px',
+        color: getThemeValue(this.theme).titleColor,
       }
     },
     marginStyle() {
       return {
         marginLeft: this.titleFontSize / 1.7 + 'px',
       }
+    },
+    ...mapState(['theme']),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主体名称初始化图表对象
+      this.screenAdapter() // 完成图表的展示
+      this.updataChart() // 更新图表的展示
     },
   },
 }

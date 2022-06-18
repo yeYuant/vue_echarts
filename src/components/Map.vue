@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import axios from 'axios'
 import { getProvinceMapInfo } from '../utils/map_utils'
 export default {
@@ -37,11 +38,12 @@ export default {
   beforeDestroy() {
     // 组件销毁之前,将监听器取消掉
     window.removeEventListener('resize', this.screenAdapter)
+    this.$socket.unRegisterCallBack('mapData')
   },
   methods: {
     // 初始化echartInstance对象
     async initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.mapRef, 'chalk')
+      this.chartInstance = this.$echarts.init(this.$refs.mapRef, this.theme)
       const ret = await axios.get('http://localhost:8999/static/map/china.json')
       this.$echarts.registerMap('china', ret.data)
       const initOption = {
@@ -58,6 +60,10 @@ export default {
           itemStyle: {
             areaColor: '#2E72BF',
             borderColor: '#333',
+          },
+          label: {
+            show: true,
+            color: '#fff',
           },
         },
         legend: {
@@ -105,9 +111,9 @@ export default {
           data: item.children,
           coordinateSystem: 'geo',
           //设置圆圈大小
-          symbolSize: 17,
+          symbolSize: 14,
           rippleEffect: {
-            scale: 3, //缩放 涟漪动画范围大小
+            scale: 6, //缩放 涟漪动画范围大小
             brushType: 'stroke',
           },
         }
@@ -130,11 +136,11 @@ export default {
           },
         },
         legend: {
-          itemWidth: titleFontSize / 3,
-          itemHeight: titleFontSize / 3,
-          itemGap: titleFontSize / 3,
+          itemWidth: titleFontSize / 2,
+          itemHeight: titleFontSize / 2,
+          itemGap: titleFontSize / 2,
           textStyle: {
-            fontSize: titleFontSize / 3,
+            fontSize: titleFontSize / 2,
           },
         },
       }
@@ -150,6 +156,17 @@ export default {
         },
       }
       this.chartInstance.setOption(reverOption)
+    },
+  },
+  computed: {
+    ...mapState(['theme']),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主体名称初始化图表对象
+      this.screenAdapter() // 完成图表的展示
+      this.updataChart() // 更新图表的展示
     },
   },
 }

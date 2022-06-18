@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'Seller',
   data() {
@@ -36,11 +37,12 @@ export default {
     clearInterval(this.timerId)
     // 组件销毁之前,将监听器取消掉
     window.removeEventListener('resize', this.screenAdapter)
+    this.$socket.unRegisterCallBack('sellerData')
   },
   methods: {
     // 初始化echartInstance对象
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.sellerRef, 'chalk')
+      this.chartInstance = this.$echarts.init(this.$refs.sellerRef, this.theme)
       // 对图表初始化配置的控制
       const initOption = {
         title: {
@@ -50,7 +52,7 @@ export default {
         },
         grid: {
           top: '17%',
-          right: '2%',
+          right: '5%',
           bottom: '2%',
           left: '1%',
           containLabel: true, // 开启后,在坐标轴移动时,文字也能移动
@@ -119,11 +121,11 @@ export default {
       })
       // 如果每页显示5条数据,总的页码数
       this.totalPage = this.allData.length % 5 === 0 ? this.allData.length / 5 : this.allData.length / 5 + 1
-      this.updateChart()
+      this.updataChart()
       this.startInterval()
     },
     // 更新图表
-    updateChart() {
+    updataChart() {
       // 对数据进行每页显示5条的限制
       const start = (this.currentPage - 1) * 5
       const end = this.currentPage * 5
@@ -157,7 +159,7 @@ export default {
           // 页码切换完毕之后重新回到第一页进行循环
           this.currentPage = 1
         }
-        this.updateChart()
+        this.updataChart()
       }, 3000)
     },
     // 当浏览器的大小发生改变时,会调用此方法,来进行屏幕的适配
@@ -189,6 +191,17 @@ export default {
       this.chartInstance.setOption(adapterOption)
       // 手动的调用图表的 resize,才能产生效果
       this.chartInstance.resize()
+    },
+  },
+  computed: {
+    ...mapState(['theme']),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主体名称初始化图表对象
+      this.screenAdapter() // 完成图表的展示
+      this.updataChart() // 更新图表的展示
     },
   },
 }

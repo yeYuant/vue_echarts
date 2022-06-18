@@ -1,3 +1,4 @@
+<!--地区销售排行图表 -->
 <template>
   <div class="com_container">
     <div class="com_chart" ref="rankRef"></div>
@@ -5,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   nmae: 'Rank',
   data() {
@@ -36,11 +38,12 @@ export default {
     // 组件销毁之前,将监听器取消掉
     window.removeEventListener('resize', this.screenAdapter)
     clearInterval(this.timerId)
+    this.$socket.unRegisterCallBack('rankData')
   },
   methods: {
     // 初始化echartInstance对象
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.rankRef, 'chalk')
+      this.chartInstance = this.$echarts.init(this.$refs.rankRef, this.theme)
       const initOption = {
         title: {
           text: '▎地区销售排行',
@@ -49,7 +52,7 @@ export default {
         },
 
         grid: {
-          top: '17%',
+          top: '28%',
           right: '5%',
           bottom: '5%',
           left: '3%',
@@ -217,6 +220,17 @@ export default {
         }
         this.updataChart()
       }, 2000)
+    },
+  },
+  computed: {
+    ...mapState(['theme']),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主体名称初始化图表对象
+      this.screenAdapter() // 完成图表的展示
+      this.updataChart() // 更新图表的展示
     },
   },
 }

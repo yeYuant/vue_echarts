@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'Stock',
   data() {
@@ -35,11 +36,12 @@ export default {
     // 组件销毁之前,将监听器取消掉
     window.removeEventListener('resize', this.screenAdapter)
     clearInterval(this.timeId)
+    this.$socket.unRegisterCallBack('stockData')
   },
   methods: {
     // 初始化echartInstance对象
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.stockRef, 'chalk')
+      this.chartInstance = this.$echarts.init(this.$refs.stockRef, this.theme)
       const initOption = {
         title: {
           text: '▎库存和销量分析',
@@ -96,7 +98,7 @@ export default {
           },
           data: [
             {
-              name: item.name + '\n' + item.sales,
+              name: item.name + '\n\n\n\n' + item.sales,
               value: item.sales,
               itemStyle: {
                 color: new this.$echarts.graphic.LinearGradient(0, 1, 0, 0, [
@@ -110,17 +112,29 @@ export default {
                   },
                 ]),
               },
+              // 内部的提示框
+              tooltip: {
+                formatter: `${item.name} <br/>库存：{c} <br>占比：{d}%`,
+              },
             },
             {
               value: item.stock,
               itemStyle: {
-                color: '#333843',
+                color: '#353942',
+              },
+              // 内部的提示框
+              tooltip: {
+                formatter: `${item.name} <br/>库存：{c} <br>占比：{d}%`,
               },
             },
           ],
         }
       })
       const dataOption = {
+        tooltip: {
+          // 这里为item 可以为内部的数据开启 单独的 tooltip
+          trigger: 'item',
+        },
         series: seriesArr,
       }
       this.chartInstance.setOption(dataOption)
@@ -128,8 +142,8 @@ export default {
     screenAdapter() {
       // 和分辨率相关的配置项
       const titleFontSize = (this.$refs.stockRef.offsetWidth / 100) * 3.6
-      const innerRadius = titleFontSize * 2
-      const outterRadius = innerRadius * 1.125
+      const innerRadius = titleFontSize * 2.8
+      const outterRadius = innerRadius * 1.2
       const adapterOption = {
         title: {
           textStyle: {
@@ -141,35 +155,35 @@ export default {
             type: 'pie',
             radius: [outterRadius, innerRadius],
             label: {
-              fontSize: titleFontSize / 2,
+              fontSize: titleFontSize / 1.2,
             },
           },
           {
             type: 'pie',
             radius: [outterRadius, innerRadius],
             label: {
-              fontSize: titleFontSize / 2,
+              fontSize: titleFontSize / 1.2,
             },
           },
           {
             type: 'pie',
             radius: [outterRadius, innerRadius],
             label: {
-              fontSize: titleFontSize / 2,
+              fontSize: titleFontSize / 1.2,
             },
           },
           {
             type: 'pie',
             radius: [outterRadius, innerRadius],
             label: {
-              fontSize: titleFontSize / 2,
+              fontSize: titleFontSize / 1.2,
             },
           },
           {
             type: 'pie',
             radius: [outterRadius, innerRadius],
             label: {
-              fontSize: titleFontSize / 2,
+              fontSize: titleFontSize / 1.2,
             },
           },
         ],
@@ -191,8 +205,22 @@ export default {
       }, 3000)
     },
   },
+  computed: {
+    ...mapState(['theme']),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主体名称初始化图表对象
+      this.screenAdapter() // 完成图表的展示
+      this.updataChart() // 更新图表的展示
+    },
+  },
 }
 </script>
 
 <style>
+/* *{
+  color: #353942;
+} */
 </style>

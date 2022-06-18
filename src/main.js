@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
+import store from './store/index.js'
 // 导入路由组件
 import router from './router/router'
 // 引入全局样式文件
@@ -17,7 +18,6 @@ Vue.prototype.$socket = SocketService.Instance
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/'
 // 将 axios挂载到Vue的原型对象上
 Vue.prototype.$axios = axios
-
 // 将全局 echarts对象挂载到 Vue的原型对象上
 Vue.prototype.$echarts = window.echarts
 
@@ -26,5 +26,6 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App),
 })

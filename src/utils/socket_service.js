@@ -33,7 +33,6 @@ export default class SocketService {
 
         // 连接成功的事件
         this.ws.onopen = () => {
-            console.log('服务器连接成功');
             this.connected = true
             // 重新连接的次数
             this.connectRetryCount = 0
@@ -41,7 +40,7 @@ export default class SocketService {
 
         // 1.连接失败的事件
         // 2.服务器连接成功之后,服务器关闭的情况
-        this.ws.opclose = () => {
+        this.ws.onclose = () => {
             console.log('连接服务端失败');
             this.connected = false
             this.connectRetryCount++
@@ -52,7 +51,6 @@ export default class SocketService {
 
         // 得到从服务端发送过来的数据
         this.ws.onmessage = msg => {
-            console.log('得到了从服务端发送过来的数据');
             // 真正从服务端发送过来的数据在msg中的data字段中
             const recvData = JSON.parse(msg.data)
             const socketType = recvData.socketType
@@ -63,9 +61,9 @@ export default class SocketService {
                     const realData = JSON.parse(recvData.data)
                     this.callBackMapping[socketType].call(this, realData)
                 } else if (action === 'fullScreen') {
-
+                    this.callBackMapping[socketType].call(this, recvData)
                 } else if (action === 'themeChange') {
-
+                    this.callBackMapping[socketType].call(this, recvData)
                 }
             }
         }

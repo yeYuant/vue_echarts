@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { getThemeValue } from '../utils/theme_utils'
 export default {
   name: 'Hot',
   data() {
@@ -38,14 +40,15 @@ export default {
   beforeDestroy() {
     // 组件销毁之前,将监听器取消掉
     window.removeEventListener('resize', this.screenAdapter)
+    this.$socket.unRegisterCallBack('hotproductData')
   },
   methods: {
     // 初始化echartInstance对象
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.hotRef, 'chalk')
+      this.chartInstance = this.$echarts.init(this.$refs.hotRef, this.theme)
       const initOption = {
         title: {
-          text: '▎热销商品销售金额占比统计',
+          text: '▎热销商品占比',
           left: 23,
           top: 23,
         },
@@ -67,14 +70,14 @@ export default {
           },
         },
         legend: {
-          top: '14%',
+          top: '15%',
           icon: 'circle',
         },
         series: [
           {
             type: 'pie',
             label: {
-              show: false,
+              // show: false,
             },
             emphasis: {
               label: {
@@ -133,15 +136,15 @@ export default {
         series: [
           {
             radius: this.titleFontSize * 4.3,
-            center: ['50%', '54%'],
+            center: ['50%', '60%'],
           },
         ],
         legend: {
-          itemWidth: this.titleFontSize / 2,
-          itemHeight: this.titleFontSize / 2,
+          itemWidth: this.titleFontSize,
+          itemHeight: this.titleFontSize,
           itemGap: this.titleFontSize / 2,
           textStyle: {
-            fontSize: this.titleFontSize / 2,
+            fontSize: this.titleFontSize / 1.2,
           },
         },
       }
@@ -175,8 +178,18 @@ export default {
     // 标题字体大小
     comStyle() {
       return {
-        fontSize: this.titleFontSize / 2 + 'px',
+        fontSize: this.titleFontSize + 'px',
+        color: getThemeValue(this.theme).titleColor,
       }
+    },
+    ...mapState(['theme']),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主体名称初始化图表对象
+      this.screenAdapter() // 完成图表的展示
+      this.updataChart() // 更新图表的展示
     },
   },
 }
@@ -186,7 +199,7 @@ export default {
 .icon_left {
   position: absolute;
   left: 10%;
-  top: 50%;
+  top: 57%;
   transform: translateY(-50%);
   color: #fff;
   cursor: pointer;
@@ -194,7 +207,7 @@ export default {
 .icon_right {
   position: absolute;
   right: 10%;
-  top: 50%;
+  top: 57%;
   transform: translateY(-50%);
   color: #fff;
   cursor: pointer;
