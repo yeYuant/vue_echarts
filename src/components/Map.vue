@@ -44,7 +44,7 @@ export default {
     // 初始化echartInstance对象
     async initChart() {
       this.chartInstance = this.$echarts.init(this.$refs.mapRef, this.theme)
-      const ret = await axios.get('http://localhost:8999/static/map/china.json')
+      const ret = await axios.get('http://127.0.0.1:9999/static/map/china.json')
       this.$echarts.registerMap('china', ret.data)
       const initOption = {
         title: {
@@ -79,7 +79,7 @@ export default {
         // 判断当前所点击的省份de地图的矢量数据是否在 this.mapData中存在
         if (!this.mapData[provinceInfo.key]) {
           // 获取省份对应的地图的矢量数据
-          const ret = await axios.get('http://localhost:8999/' + provinceInfo.path)
+          const ret = await axios.get('http://127.0.0.1:9999/' + provinceInfo.path)
           this.mapData[provinceInfo.key] = ret.data
           this.$echarts.registerMap(provinceInfo.key, ret.data)
         }

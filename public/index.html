@@ -7,8 +7,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
   <title>
-    <%= htmlWebpackPlugin.options.title %>
+    <%= htmlWebpackPlugin.options.isProd ? '' : 'dev - ' %>电商平台数据可视化实时监控系统
   </title>
+
+  <% if(htmlWebpackPlugin.options.isProd){ %>
+
+    <!-- CDN JS -->
+    <script src="https://cdn.staticfile.org/vue/2.5.22/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue-router/3.0.1/vue-router.min.js"></script>
+    <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.1.0/echarts.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
+    <% } %>
+
 </head>
 
 <body>
@@ -24,6 +35,8 @@
   <!-- 导入echarts主题 -->
   <script src="./static/theme/chalk.js"></script>
   <script src="./static/theme/vintage.js"></script>
+
+
 
 </body>
 
